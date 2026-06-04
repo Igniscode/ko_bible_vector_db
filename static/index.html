@@ -1,0 +1,1514 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>말씀의 샘</title>
+	<!-- Google Fonts: Inter (UI), Outfit (Labels & numbers), Noto Serif KR (Scripture), Noto Sans KR (Base UI) -->
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Noto+Sans+KR:wght@300;400;500;700&family=Noto+Serif+KR:wght@400;500;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+	
+	<style>
+		/* --- Design System & CSS Variables --- */
+		:root[data-theme="dark"] {
+			--bg-app: radial-gradient(circle at 10% 20%, #0c1410 0%, #050807 100%);
+			--bg-app-fallback: #0c1410;
+			--bg-card: rgba(16, 26, 20, 0.7);
+			--bg-card-solid: #121d17;
+			--bg-card-hover: rgba(22, 38, 29, 0.85);
+			--bg-input: rgba(8, 14, 11, 0.6);
+			--border-color: rgba(255, 255, 255, 0.08);
+			--border-color-hover: rgba(59, 183, 120, 0.3);
+			--border-color-focus: rgba(59, 183, 120, 0.6);
+			--text-primary: #f1f5f3;
+			--text-secondary: #a3b8ac;
+			--text-muted: #6b8275;
+			--accent-color: #3bb778;
+			--accent-glow: rgba(59, 183, 120, 0.25);
+			--accent-hover: #4ad48c;
+			--tag-bg: rgba(59, 183, 120, 0.12);
+			--tag-text: #4ee298;
+			--shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
+			--shadow-md: 0 8px 30px rgba(0, 0, 0, 0.3);
+			--shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
+			--scrollbar-thumb: rgba(255, 255, 255, 0.12);
+			--reader-bg: rgba(13, 22, 17, 0.95);
+			
+			/* Emotion Intent Theme Colors (Dark) */
+			--intent-anxiety-bg: rgba(54, 162, 235, 0.15);
+			--intent-anxiety-text: #64b5f6;
+			--intent-guilt-bg: rgba(156, 39, 176, 0.15);
+			--intent-guilt-text: #e040fb;
+			--intent-lonely-bg: rgba(255, 193, 7, 0.15);
+			--intent-lonely-text: #ffd54f;
+			--intent-exhausted-bg: rgba(255, 87, 34, 0.15);
+			--intent-exhausted-text: #ff8a65;
+			--intent-anger-bg: rgba(244, 67, 54, 0.15);
+			--intent-anger-text: #ff5252;
+			--intent-sadness-bg: rgba(0, 150, 136, 0.15);
+			--intent-sadness-text: #26a69a;
+			--intent-general-bg: rgba(76, 175, 80, 0.15);
+			--intent-general-text: #81c784;
+		}
+
+		:root[data-theme="light"] {
+			--bg-app: radial-gradient(circle at 10% 20%, #f6f5ef 0%, #eae7de 100%);
+			--bg-app-fallback: #f6f5ef;
+			--bg-card: rgba(255, 255, 255, 0.75);
+			--bg-card-solid: #ffffff;
+			--bg-card-hover: rgba(255, 255, 255, 0.95);
+			--bg-input: rgba(255, 255, 255, 0.9);
+			--border-color: rgba(22, 38, 29, 0.08);
+			--border-color-hover: rgba(45, 106, 79, 0.25);
+			--border-color-focus: rgba(45, 106, 79, 0.5);
+			--text-primary: #1d2d24;
+			--text-secondary: #4a5c51;
+			--text-muted: #798e80;
+			--accent-color: #2d6a4f;
+			--accent-glow: rgba(45, 106, 79, 0.15);
+			--accent-hover: #1b4332;
+			--tag-bg: rgba(45, 106, 79, 0.08);
+			--tag-text: #2d6a4f;
+			--shadow-sm: 0 2px 8px rgba(22, 38, 29, 0.05);
+			--shadow-md: 0 8px 24px rgba(22, 38, 29, 0.08);
+			--shadow-lg: 0 16px 36px rgba(22, 38, 29, 0.12);
+			--scrollbar-thumb: rgba(0, 0, 0, 0.1);
+			--reader-bg: rgba(255, 255, 255, 0.96);
+			
+			/* Emotion Intent Theme Colors (Light) */
+			--intent-anxiety-bg: rgba(54, 162, 235, 0.1);
+			--intent-anxiety-text: #0288d1;
+			--intent-guilt-bg: rgba(156, 39, 176, 0.1);
+			--intent-guilt-text: #7b1fa2;
+			--intent-lonely-bg: rgba(255, 193, 7, 0.15);
+			--intent-lonely-text: #f57f17;
+			--intent-exhausted-bg: rgba(255, 87, 34, 0.1);
+			--intent-exhausted-text: #d84315;
+			--intent-anger-bg: rgba(244, 67, 54, 0.1);
+			--intent-anger-text: #c62828;
+			--intent-sadness-bg: rgba(0, 150, 136, 0.1);
+			--intent-sadness-text: #00695c;
+			--intent-general-bg: rgba(76, 175, 80, 0.1);
+			--intent-general-text: #2e7d32;
+		}
+
+		/* --- Global & Basic Styles --- */
+		* {
+			box-sizing: border-box;
+			margin: 0;
+			padding: 0;
+		}
+
+		body {
+			min-height: 100vh;
+			background: var(--bg-app-fallback);
+			background: var(--bg-app);
+			color: var(--text-primary);
+			font-family: "Inter", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+			padding: 24px;
+			line-height: 1.6;
+			transition: background 0.4s ease, color 0.4s ease;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
+
+		.app-container {
+			width: 100%;
+			max-width: 1280px;
+			display: flex;
+			flex-direction: column;
+			gap: 24px;
+		}
+
+		/* --- Header Section --- */
+		header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			padding: 8px 4px;
+		}
+
+		.brand {
+			display: flex;
+			flex-direction: column;
+			gap: 4px;
+		}
+
+		.brand h1 {
+			font-size: 26px;
+			font-weight: 700;
+			letter-spacing: -0.8px;
+			background: linear-gradient(135deg, var(--text-primary) 30%, var(--accent-color));
+			-webkit-background-clip: text;
+			-webkit-text-fill-color: transparent;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.brand h1 svg {
+			fill: var(--accent-color);
+			width: 28px;
+			height: 28px;
+		}
+
+		.brand p {
+			font-size: 13.5px;
+			color: var(--text-secondary);
+			font-weight: 400;
+		}
+
+		.header-controls {
+			display: flex;
+			gap: 12px;
+		}
+
+		.theme-btn {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			color: var(--text-primary);
+			width: 44px;
+			height: 44px;
+			border-radius: 12px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.theme-btn:hover {
+			border-color: var(--border-color-hover);
+			background: var(--bg-card-hover);
+			transform: translateY(-2px);
+		}
+
+		.theme-btn svg {
+			width: 20px;
+			height: 20px;
+			fill: currentColor;
+		}
+
+		/* Theme Icon Toggles */
+		.theme-btn .sun-icon { display: none; }
+		:root[data-theme="light"] .theme-btn .moon-icon { display: none; }
+		:root[data-theme="light"] .theme-btn .sun-icon { display: block; }
+		:root[data-theme="dark"] .theme-btn .moon-icon { display: block; }
+
+		/* --- Search Panel Section --- */
+		.search-panel {
+			background: var(--bg-card);
+			backdrop-filter: blur(16px);
+			-webkit-backdrop-filter: blur(16px);
+			border: 1px solid var(--border-color);
+			border-radius: 20px;
+			padding: 24px;
+			box-shadow: var(--shadow-md);
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			position: relative;
+			overflow: hidden;
+			transition: all 0.3s ease;
+		}
+
+		.search-panel::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 4px;
+			background: linear-gradient(90deg, var(--accent-color), transparent);
+			opacity: 0.8;
+		}
+
+		.search-row {
+			display: flex;
+			gap: 12px;
+			position: relative;
+		}
+
+		.search-input-wrapper {
+			position: relative;
+			flex: 1;
+		}
+
+		.search-icon {
+			position: absolute;
+			left: 16px;
+			top: 50%;
+			transform: translateY(-50%);
+			width: 20px;
+			height: 20px;
+			color: var(--text-muted);
+			pointer-events: none;
+			transition: color 0.3s ease;
+		}
+
+		input[type="text"] {
+			width: 100%;
+			height: 56px;
+			border: 1px solid var(--border-color);
+			border-radius: 14px;
+			padding: 12px 16px 12px 48px;
+			font-size: 16px;
+			font-family: inherit;
+			color: var(--text-primary);
+			background: var(--bg-input);
+			box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+			outline: none;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		input[type="text"]:focus {
+			border-color: var(--border-color-focus);
+			box-shadow: 0 0 0 4px var(--accent-glow);
+			background: var(--bg-card-solid);
+		}
+
+		input[type="text"]:focus + .search-icon {
+			color: var(--accent-color);
+		}
+
+		.search-btn {
+			height: 56px;
+			padding: 0 28px;
+			background: var(--accent-color);
+			color: white;
+			border: none;
+			border-radius: 14px;
+			font-size: 16px;
+			font-weight: 700;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: 0 4px 12px var(--accent-glow);
+		}
+
+		.search-btn:hover:not(:disabled) {
+			background: var(--accent-hover);
+			transform: translateY(-2px);
+			box-shadow: 0 6px 16px var(--accent-glow);
+		}
+
+		.search-btn:active:not(:disabled) {
+			transform: translateY(0);
+		}
+
+		.search-btn:disabled {
+			opacity: 0.6;
+			cursor: not-allowed;
+		}
+
+		/* --- Loading Spinner --- */
+		.spinner {
+			width: 20px;
+			height: 20px;
+			border: 2.5px solid rgba(255, 255, 255, 0.3);
+			border-top-color: white;
+			border-radius: 50%;
+			animation: spin 0.8s linear infinite;
+			display: none;
+		}
+
+		@keyframes spin {
+			to { transform: rotate(360deg); }
+		}
+
+		.loading .spinner {
+			display: block;
+		}
+
+		.loading .btn-text {
+			display: none;
+		}
+
+		/* --- Preset Query Chips --- */
+		.preset-chips {
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			align-items: center;
+		}
+
+		.preset-title {
+			font-size: 12.5px;
+			font-weight: 600;
+			color: var(--text-muted);
+			margin-right: 4px;
+		}
+
+		.chip {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			color: var(--text-secondary);
+			padding: 6px 12px;
+			border-radius: 99px;
+			font-size: 13px;
+			cursor: pointer;
+			transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+		}
+
+		.chip:hover {
+			border-color: var(--border-color-hover);
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+			transform: translateY(-1px);
+		}
+
+		.chip:active {
+			transform: translateY(0);
+		}
+
+		/* --- AI Insight Panel --- */
+		.insight-panel {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 16px;
+			padding: 16px 20px;
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+			animation: fadeIn 0.4s ease both;
+		}
+
+		.insight-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 12px;
+		}
+
+		.intent-indicator {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 6px 14px;
+			border-radius: 10px;
+			font-size: 14px;
+			font-weight: 700;
+		}
+
+		/* Dynamic intent styles set via javascript --intent-... colors */
+		.intent-indicator {
+			background-color: var(--intent-bg);
+			color: var(--intent-text);
+		}
+
+		.intent-explain {
+			font-size: 14.5px;
+			color: var(--text-secondary);
+			font-weight: 500;
+			flex: 1;
+			min-width: 250px;
+		}
+
+		.expansion-accordion {
+			border-top: 1px solid var(--border-color);
+			padding-top: 10px;
+		}
+
+		.expansion-accordion summary {
+			font-size: 12.5px;
+			color: var(--text-muted);
+			cursor: pointer;
+			user-select: none;
+			outline: none;
+			font-weight: 600;
+			transition: color 0.2s ease;
+		}
+
+		.expansion-accordion summary:hover {
+			color: var(--text-secondary);
+		}
+
+		.expansion-content {
+			margin-top: 8px;
+			background: var(--bg-input);
+			border-radius: 10px;
+			padding: 12px;
+			font-size: 13px;
+			color: var(--text-secondary);
+			display: flex;
+			flex-direction: column;
+			gap: 6px;
+		}
+
+		.expansion-content strong {
+			color: var(--text-primary);
+		}
+
+		/* --- Main 2-Column Dashboard Layout --- */
+		.main-layout {
+			display: grid;
+			grid-template-columns: 460px 1fr;
+			gap: 24px;
+			align-items: start;
+		}
+
+		/* --- Left Side: Results List --- */
+		.results-pane {
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+		}
+
+		.results-pane-header {
+			font-size: 15px;
+			font-weight: 700;
+			color: var(--text-muted);
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 0 4px;
+		}
+
+		.results-list {
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+		}
+
+		.card {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			border-radius: 16px;
+			padding: 20px;
+			cursor: pointer;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+			box-shadow: var(--shadow-sm);
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			position: relative;
+			overflow: hidden;
+			text-align: left;
+		}
+
+		.card::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			top: 0;
+			width: 4px;
+			height: 100%;
+			background: transparent;
+			transition: background-color 0.3s ease;
+		}
+
+		.card:hover {
+			background: var(--bg-card-hover);
+			border-color: var(--border-color-hover);
+			transform: translateY(-2px);
+			box-shadow: var(--shadow-md);
+		}
+
+		.card.selected {
+			background: var(--bg-card-hover);
+			border-color: var(--accent-color);
+			box-shadow: 0 0 0 1px var(--accent-color), var(--shadow-md);
+		}
+
+		.card.selected::after {
+			background: var(--accent-color);
+		}
+
+		.card-top {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+		}
+
+		.card-ref {
+			font-size: 14px;
+			font-weight: 700;
+			color: var(--accent-color);
+			letter-spacing: -0.2px;
+		}
+
+		.match-score {
+			font-family: "Outfit", sans-serif;
+			font-size: 12.5px;
+			font-weight: 600;
+			background: var(--tag-bg);
+			color: var(--tag-text);
+			padding: 3px 8px;
+			border-radius: 6px;
+		}
+
+		.card-title {
+			font-size: 17px;
+			font-weight: 700;
+			color: var(--text-primary);
+			letter-spacing: -0.4px;
+		}
+
+		.card-summary {
+			font-size: 13.5px;
+			color: var(--text-secondary);
+			line-height: 1.5;
+			display: -webkit-box;
+			-webkit-line-clamp: 2;
+			-webkit-box-orient: vertical;
+			overflow: hidden;
+		}
+
+		.card-tags {
+			display: flex;
+			gap: 6px;
+			flex-wrap: wrap;
+			margin-top: 4px;
+		}
+
+		.tag {
+			font-size: 11.5px;
+			font-weight: 500;
+			padding: 2px 8px;
+			border-radius: 99px;
+			background: var(--tag-bg);
+			color: var(--tag-text);
+			border: 1px solid rgba(59, 183, 120, 0.05);
+		}
+
+		/* --- Right Side: Scripture Reader --- */
+		.reader-pane {
+			background: var(--reader-bg);
+			border: 1px solid var(--border-color);
+			border-radius: 20px;
+			box-shadow: var(--shadow-lg);
+			position: sticky;
+			top: 24px;
+			min-height: calc(100vh - 160px);
+			max-height: calc(100vh - 80px);
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			transition: transform 0.3s ease, background 0.4s ease;
+		}
+
+		.reader-empty {
+			flex: 1;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			padding: 40px;
+			text-align: center;
+			color: var(--text-muted);
+			gap: 16px;
+		}
+
+		.reader-empty .empty-icon {
+			font-size: 48px;
+			opacity: 0.6;
+		}
+
+		.reader-empty h3 {
+			font-size: 18px;
+			font-weight: 600;
+			color: var(--text-secondary);
+		}
+
+		.reader-empty p {
+			font-size: 14px;
+			max-width: 280px;
+			line-height: 1.5;
+		}
+
+		.reader-content {
+			display: flex;
+			flex-direction: column;
+			height: 100%;
+			flex: 1;
+			overflow: hidden;
+		}
+
+		.reader-header {
+			padding: 24px 28px;
+			border-bottom: 1px solid var(--border-color);
+			display: flex;
+			flex-direction: column;
+			gap: 12px;
+		}
+
+		.reader-meta-row {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			flex-wrap: wrap;
+			gap: 12px;
+		}
+
+		.reader-ref-badge {
+			font-size: 15px;
+			font-weight: 700;
+			color: var(--accent-color);
+			display: flex;
+			align-items: center;
+			gap: 6px;
+		}
+
+		.reader-tools {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.tool-btn {
+			background: transparent;
+			border: 1px solid var(--border-color);
+			color: var(--text-secondary);
+			padding: 6px 12px;
+			border-radius: 8px;
+			font-size: 13px;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			gap: 6px;
+			font-family: inherit;
+			transition: all 0.2s ease;
+		}
+
+		.tool-btn:hover {
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+			border-color: var(--border-color-hover);
+		}
+
+		.tool-btn svg {
+			width: 14px;
+			height: 14px;
+			fill: currentColor;
+		}
+
+		.font-adjust-group {
+			display: flex;
+			border: 1px solid var(--border-color);
+			border-radius: 8px;
+			overflow: hidden;
+		}
+
+		.font-btn {
+			background: transparent;
+			border: none;
+			color: var(--text-secondary);
+			width: 32px;
+			height: 30px;
+			font-size: 13px;
+			font-weight: 600;
+			cursor: pointer;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all 0.2s ease;
+		}
+
+		.font-btn:first-child {
+			border-right: 1px solid var(--border-color);
+		}
+
+		.font-btn:hover {
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+		}
+
+		.reader-title {
+			font-size: 24px;
+			font-weight: 700;
+			color: var(--text-primary);
+			letter-spacing: -0.6px;
+		}
+
+		.reader-summary-box {
+			background: var(--bg-input);
+			border-left: 3px solid var(--accent-color);
+			padding: 12px 16px;
+			border-radius: 0 8px 8px 0;
+			font-size: 14.5px;
+			color: var(--text-secondary);
+			font-weight: 500;
+			line-height: 1.5;
+		}
+
+		/* --- Scrollable Scripture View --- */
+		.reader-body {
+			flex: 1;
+			overflow-y: auto;
+			padding: 28px;
+			display: flex;
+			flex-direction: column;
+			gap: 16px;
+			scroll-behavior: smooth;
+		}
+
+		/* Scripture text formatting - Noto Serif for printing look */
+		.verses-container {
+			font-family: "Noto Serif KR", Georgia, serif;
+			font-size: var(--reader-font-size, 17px);
+			line-height: 1.85;
+			color: var(--text-primary);
+			display: flex;
+			flex-direction: column;
+			gap: 14px;
+			text-align: justify;
+		}
+
+		.verse-row {
+			display: flex;
+			align-items: flex-start;
+			gap: 12px;
+		}
+
+		.verse-number {
+			font-family: "Outfit", "Inter", sans-serif;
+			font-size: 11px;
+			font-weight: 700;
+			color: var(--accent-color);
+			min-width: 20px;
+			text-align: right;
+			margin-top: 5px;
+			user-select: none;
+		}
+
+		.verse-content {
+			flex: 1;
+			word-break: keep-all;
+		}
+
+		.verse-fallback {
+			font-family: inherit;
+			word-break: keep-all;
+		}
+
+		/* --- Reader Footer (Modern Applications) --- */
+		.reader-footer {
+			padding: 20px 28px;
+			background: var(--bg-input);
+			border-top: 1px solid var(--border-color);
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.footer-title {
+			font-size: 13px;
+			font-weight: 700;
+			color: var(--text-muted);
+			text-transform: uppercase;
+			letter-spacing: 0.5px;
+		}
+
+		.modern-query-list {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.modern-query-item {
+			font-size: 13.5px;
+			color: var(--text-secondary);
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+
+		.modern-query-item::before {
+			content: "•";
+			color: var(--accent-color);
+			font-weight: bold;
+		}
+
+		/* --- Skeleton Shimmer Loading State --- */
+		.skeleton-card {
+			pointer-events: none;
+		}
+
+		.skeleton-shimmer {
+			background: linear-gradient(
+				90deg,
+				var(--border-color) 25%,
+				var(--bg-card-hover) 37%,
+				var(--border-color) 63%
+			);
+			background-size: 400% 100%;
+			animation: shimmer 1.4s ease infinite;
+			border-radius: 4px;
+		}
+
+		@keyframes shimmer {
+			0% { background-position: 100% 50%; }
+			100% { background-position: 0% 50%; }
+		}
+
+		.sk-ref { width: 40%; height: 16px; margin-bottom: 8px; }
+		.sk-title { width: 70%; height: 20px; margin-bottom: 8px; }
+		.sk-desc1 { width: 90%; height: 14px; margin-bottom: 6px; }
+		.sk-desc2 { width: 80%; height: 14px; margin-bottom: 8px; }
+		.sk-tag { width: 30%; height: 16px; border-radius: 99px; }
+
+		/* --- Custom Toast System --- */
+		.toast-container {
+			position: fixed;
+			bottom: 24px;
+			right: 24px;
+			z-index: 1000;
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+
+		.toast {
+			background: var(--bg-card-solid);
+			color: var(--text-primary);
+			border: 1px solid var(--accent-color);
+			padding: 12px 20px;
+			border-radius: 12px;
+			box-shadow: var(--shadow-lg);
+			font-size: 14px;
+			font-weight: 500;
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+		}
+
+		@keyframes slideIn {
+			from { transform: translateY(20px); opacity: 0; }
+			to { transform: translateY(0); opacity: 1; }
+		}
+
+		.toast.fade-out {
+			animation: fadeOut 0.3s ease both;
+		}
+
+		@keyframes fadeOut {
+			to { opacity: 0; transform: translateY(8px); }
+		}
+
+		/* --- Scrollbar Customization --- */
+		::-webkit-scrollbar {
+			width: 8px;
+			height: 8px;
+		}
+
+		::-webkit-scrollbar-track {
+			background: transparent;
+		}
+
+		::-webkit-scrollbar-thumb {
+			background: var(--scrollbar-thumb);
+			border-radius: 99px;
+		}
+
+		::-webkit-scrollbar-thumb:hover {
+			background: var(--text-muted);
+		}
+
+		/* --- Global Fade & Entrance Animations --- */
+		@keyframes fadeIn {
+			from { opacity: 0; }
+			to { opacity: 1; }
+		}
+
+		@keyframes cardEntrance {
+			from { opacity: 0; transform: translateY(12px); }
+			to { opacity: 1; transform: translateY(0); }
+		}
+
+		/* --- Mobile Responsive Detail Drawer/Modal --- */
+		.mobile-drawer {
+			display: none;
+			position: fixed;
+			top: 0;
+			left: 0;
+			width: 100%;
+			height: 100%;
+			z-index: 999;
+		}
+
+		.mobile-drawer.open {
+			display: block;
+		}
+
+		.drawer-overlay {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			background: rgba(0, 0, 0, 0.6);
+			backdrop-filter: blur(4px);
+			animation: fadeIn 0.3s ease;
+		}
+
+		.drawer-container {
+			position: absolute;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 85%;
+			background: var(--reader-bg);
+			border-radius: 24px 24px 0 0;
+			box-shadow: 0 -12px 30px rgba(0,0,0,0.3);
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
+			animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+		}
+
+		@keyframes slideUp {
+			from { transform: translateY(100%); }
+			to { transform: translateY(0); }
+		}
+
+		.drawer-close-bar {
+			width: 100%;
+			height: 24px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			cursor: pointer;
+		}
+
+		.drawer-close-indicator {
+			width: 40px;
+			height: 5px;
+			background: var(--border-color);
+			border-radius: 99px;
+		}
+
+		/* --- Media Queries --- */
+		@media (max-width: 1024px) {
+			.main-layout {
+				grid-template-columns: 1fr;
+			}
+
+			.reader-pane {
+				display: none; /* Handled via drawer on tablets and mobile */
+			}
+		}
+
+		@media (max-width: 640px) {
+			body {
+				padding: 12px;
+			}
+
+			.brand h1 {
+				font-size: 22px;
+			}
+
+			.search-panel {
+				padding: 16px;
+			}
+
+			.search-row {
+				flex-direction: column;
+			}
+
+			.search-btn {
+				width: 100%;
+				justify-content: center;
+			}
+
+			.card {
+				padding: 16px;
+			}
+		}
+	</style>
+</head>
+<body>
+	<div class="app-container">
+		<!-- Header -->
+		<header>
+			<div class="brand">
+				<h1>
+					<!-- Bible Icon (SVG) -->
+					<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M19 2H6c-1.206 0-3 .799-3 3v14c0 2.201 1.794 3 3 3h15v-2H6c-.836 0-1-.343-1-1V5c0-.657.164-1 1-1h13v2H6v2h13v2H6v2h13v2H6v2h13v4h2V4c0-1.103-.897-2-2-2z"/>
+					</svg>
+					말씀의 샘
+				</h1>
+			</div>
+			
+			<div class="header-controls">
+				<!-- Light/Dark Mode Switcher -->
+				<button id="themeToggle" class="theme-btn" aria-label="테마 전환">
+					<!-- Sun SVG -->
+					<svg class="sun-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M6.993 12c0 2.761 2.246 5.007 5.007 5.007s5.007-2.246 5.007-5.007S14.761 6.993 12 6.993 6.993 9.239 6.993 12zM12 8.93c1.693 0 3.07 1.377 3.07 3.07s-1.377 3.07-3.07 3.07-3.07-1.377-3.07-3.07 1.377-3.07 3.07-3.07zm0-5.93c-.552 0-1 .448-1 1v1c0 .552.448 1 1 1s1-.448 1-1v-1c0-.552-.448-1-1-1zm0 14c-.552 0-1 .448-1 1v1c0 .552.448 1 1 1s1-.448 1-1v-1c0-.552-.448-1-1-1zm8-8c0-.552-.448-1-1-1h-1c-.552 0-1 .448-1 1s.448 1 1 1h1c.552 0 1-.448 1-1zM6 12c0-.552-.448-1-1-1H4c-.552 0-1 .448-1 1s.448 1 1 1h1c.552 0 1-.448 1-1zm11.314-5.314c-.39-.39-1.023-.39-1.414 0s-.39 1.023 0 1.414l.707.707c.39.39 1.023.39 1.414 0s.39-1.023 0-1.414l-.707-.707zm-9.9 9.9c-.39-.39-1.023-.39-1.414 0s-.39 1.023 0 1.414l.707.707c.39.39 1.023.39 1.414 0s.39-1.023 0-1.414l-.707-.707zm9.9 0c.39-.39.39-1.023 0-1.414s-1.023-.39-1.414 0l-.707.707c-.39.39-.39 1.023 0 1.414s1.023.39 1.414 0l.707-.707zm-9.9-9.9c.39-.39.39-1.023 0-1.414s-1.023-.39-1.414 0l-.707.707c-.39.39-.39 1.023 0 1.414s1.023.39 1.414 0l.707-.707z"/>
+					</svg>
+					<!-- Moon SVG -->
+					<svg class="moon-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M12 11.807A9.002 9.002 0 0 1 10.049 2a9.932 9.932 0 0 0-4.041.862c-4.484 2.112-6.529 7.42-4.566 12.185C3.395 19.789 8.163 22 13.003 22c4.808 0 9.273-2.164 11.391-6.19a9.014 9.014 0 0 1-12.394-4.003z"/>
+					</svg>
+				</button>
+			</div>
+		</header>
+
+		<!-- Search Control Box -->
+		<section class="search-panel">
+			<div class="search-row">
+				<div class="search-input-wrapper">
+					<!-- Search Lens SVG -->
+					<svg class="search-icon" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+						<circle cx="11" cy="11" r="8"></circle>
+						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+					</svg>
+					<input id="query" type="text" placeholder="검색하고자 하는 성경구절을 간략하게 적어주세요" />
+				</div>
+				<button id="searchBtn" class="search-btn">
+					<span class="spinner"></span>
+					<span class="btn-text">검색</span>
+				</button>
+			</div>
+			
+		</section>
+
+		<!-- AI Intent & Query Insights (Hidden initially) -->
+		<section id="insightPanel" class="insight-panel" style="display: none;">
+			<div class="insight-header">
+				<div class="intent-indicator" id="intentIndicator">
+					<span id="intentEmoji">🌱</span>
+					<span id="intentText">일반</span>
+				</div>
+				<div class="intent-explain" id="intentExplain">당신의 마음에 귀 기울여 최적의 성경 구절을 탐색했습니다.</div>
+			</div>
+			<div class="expansion-accordion">
+				<details>
+					<summary>AI 검색 분석 세부사항 (검색어 확장)</summary>
+					<div class="expansion-content">
+						<div><strong>원문 입력:</strong> "<span id="originalQuerySpan"></span>"</div>
+						<div><strong>의도 분석에 따른 성경적 확장 쿼리:</strong> "<span id="expandedQuerySpan"></span>"</div>
+					</div>
+				</details>
+			</div>
+		</section>
+
+		<!-- Main Desktop/Tablet Dashboard Grid -->
+		<div class="main-layout">
+			<!-- Left side results list -->
+			<div class="results-pane">
+				<div class="results-pane-header">
+					<span>성경 구절 후보</span>
+					<span id="resultsStat" style="font-family: 'Outfit', sans-serif; font-size: 13.5px; font-weight: 500;"></span>
+				</div>
+				
+				<div id="results" class="results-list">
+					<!-- Welcome/Prompt state -->
+					<div class="card" style="text-align: center; padding: 40px 20px; cursor: default;">
+						<div style="font-size: 40px; margin-bottom: 12px; filter: grayscale(0.2);">✨</div>
+						<h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">마음을 치유하는 검색</h3>
+						<p style="font-size: 13px; color: var(--text-secondary);">
+							감정을 분석하여 가장 잘 위로해 줄 수 있는 구절을 찾아드립니다. 예시를 누르거나 고민을 직접 입력하세요.
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<!-- Right side reader desk (Only visible on large screens) -->
+			<div class="reader-pane" id="readerPane">
+				<div class="reader-empty">
+					<div class="empty-icon">📖</div>
+					<h3>말씀 독서대</h3>
+					<p>왼쪽 검색 결과에서 구절을 클릭하시면 여기에 전체 본문이 아름답게 펼쳐집니다.</p>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Mobile Detail Drawer Overlay (Triggered on small screens) -->
+	<div id="mobileDrawer" class="mobile-drawer">
+		<div class="drawer-overlay" onclick="closeMobileDrawer()"></div>
+		<div class="drawer-container">
+			<div class="drawer-close-bar" onclick="closeMobileDrawer()">
+				<div class="drawer-close-indicator"></div>
+			</div>
+			<div id="drawerBody" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+				<!-- Selected content cloned here dynamically -->
+			</div>
+		</div>
+	</div>
+
+	<!-- Floating Toast Notification -->
+	<div id="toastContainer" class="toast-container"></div>
+
+	<!-- --- Interface Controller Script --- -->
+	<script>
+		// State variables
+		let searchResults = [];
+		let selectedIndex = -1;
+		let readerFontSize = 17; // default size in px
+
+		// DOM Cache
+		const queryInput = document.getElementById("query");
+		const searchBtn = document.getElementById("searchBtn");
+		const resultsContainer = document.getElementById("results");
+		const readerPane = document.getElementById("readerPane");
+		const insightPanel = document.getElementById("insightPanel");
+		const themeToggle = document.getElementById("themeToggle");
+		const toastContainer = document.getElementById("toastContainer");
+		
+		// Preset Chips
+		document.querySelectorAll(".chip").forEach(chip => {
+			chip.addEventListener("click", () => {
+				queryInput.value = chip.dataset.query;
+				runSearch();
+			});
+		});
+
+		// Theme controller
+		function initTheme() {
+			const savedTheme = localStorage.getItem("theme");
+			if (savedTheme) {
+				document.documentElement.setAttribute("data-theme", savedTheme);
+			} else {
+				// System preference default
+				const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+				document.documentElement.setAttribute("data-theme", systemTheme);
+			}
+		}
+
+		themeToggle.addEventListener("click", () => {
+			const currentTheme = document.documentElement.getAttribute("data-theme");
+			const newTheme = currentTheme === "dark" ? "light" : "dark";
+			document.documentElement.setAttribute("data-theme", newTheme);
+			localStorage.setItem("theme", newTheme);
+			showToast(newTheme === "dark" ? "🌙 다크 모드로 전환되었습니다." : "☀️ 라이트 모드로 전환되었습니다.");
+		});
+
+		// Toast helper
+		function showToast(message) {
+			const toast = document.createElement("div");
+			toast.className = "toast";
+			toast.innerHTML = `
+				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+				</svg>
+				<span>${message}</span>
+			`;
+			toastContainer.appendChild(toast);
+			
+			// Remove after 3s
+			setTimeout(() => {
+				toast.classList.add("fade-out");
+				toast.addEventListener("animationend", () => {
+					toast.remove();
+				});
+			}, 3000);
+		}
+
+		// Helper to escape HTML characters securely
+		function escapeHtml(str) {
+			return String(str || "")
+				.replaceAll("&", "&amp;")
+				.replaceAll("<", "&lt;")
+				.replaceAll(">", "&gt;")
+				.replaceAll('"', "&quot;")
+				.replaceAll("'", "&#39;");
+		}
+
+		// Emotion mappings to beautiful display metadata
+		const EMOTION_MAP = {
+			general: { label: "일상/지혜", emoji: "🌱", colorVar: "general", desc: "마음을 차분히 비우고, 지혜와 일상의 소망을 심어주는 말씀입니다." },
+			temptation: { label: "유혹/관계경계", emoji: "🧭", colorVar: "guilt", desc: "관계의 경계를 지키고 싶은 마음을 붙들어, 정결함과 절제를 선택하도록 돕는 말씀입니다." },
+			anxiety: { label: "불안/걱정", emoji: "😰", colorVar: "anxiety", desc: "불안과 두려운 마음을 평온하게 감싸며 용기와 위로를 불어넣는 말씀입니다." },
+			guilt: { label: "죄책감/자책", emoji: "😔", colorVar: "guilt", desc: "무거운 자책감 속에서 자유하게 하며, 회복과 용서의 은혜를 전하는 말씀입니다." },
+			lonely: { label: "외로움/고립", emoji: "👥", colorVar: "lonely", desc: "세상에 홀로 남겨진 듯할 때, 곁에 서서 동행해주시는 하나님의 말씀입니다." },
+			exhausted: { label: "피로/번아웃", emoji: "🔋", colorVar: "exhausted", desc: "일상에 완전히 지친 당신에게 깊은 영혼의 안식과 힘을 채워주는 말씀입니다." },
+			anger: { label: "분노/억울함", emoji: "🔥", colorVar: "anger", desc: "억울함과 성난 파도 같은 분노의 마음을 다스리고 평화와 용서를 배우게 합니다." },
+			sadness: { label: "슬픔/우울", emoji: "💧", colorVar: "sadness", desc: "끝없는 눈물과 슬픔 속에서 상처를 닦고 소망의 손을 건네주시는 말씀입니다." }
+		};
+
+		// Parse raw Bible passages to verse rows
+		function parseScriptureBody(text) {
+			if (!text) return '<div class="verse-fallback">본문 텍스트가 없습니다.</div>';
+			
+			const lines = text.split("\n");
+			let parsedHtml = "";
+			
+			lines.forEach(line => {
+				line = line.trim();
+				if (!line) return;
+				
+				// Pattern to match book code, chapter, and verse like '창1:1 태초에...'
+				const match = line.match(/^([가-힣\d\s]+)?(\d+):(\d+)\s+(.+)$/);
+				
+				if (match) {
+					const [_, bookName, chapter, verseNum, verseText] = match;
+					parsedHtml += `
+						<div class="verse-row">
+							<span class="verse-number">${verseNum}</span>
+							<span class="verse-content">${escapeHtml(verseText)}</span>
+						</div>
+					`;
+				} else {
+					parsedHtml += `
+						<div class="verse-row">
+							<span class="verse-number">•</span>
+							<span class="verse-content">${escapeHtml(line)}</span>
+						</div>
+					`;
+				}
+			});
+			
+			return `<div class="verses-container">${parsedHtml}</div>`;
+		}
+
+		// Update reader content (either right panel or mobile drawer)
+		function updateReader(index) {
+			if (index < 0 || index >= searchResults.length) return;
+			const data = searchResults[index];
+			
+			
+			const contentTemplate = `
+				<div class="reader-content">
+					<div class="reader-header">
+						<div class="reader-meta-row">
+							<div class="reader-ref-badge">
+								<!-- Bookmark icon SVG -->
+								<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+									<path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
+								</svg>
+								<span>${escapeHtml(data.reference)}</span>
+							</div>
+							<div class="reader-tools">
+								<div class="font-adjust-group">
+									<button class="font-btn" onclick="adjustFontSize(-1)" title="글씨 축소">A-</button>
+									<button class="font-btn" onclick="adjustFontSize(1)" title="글씨 확대">A+</button>
+								</div>
+								<button class="tool-btn" onclick="copyReaderText(${index})" title="구절 복사">
+									<!-- Copy SVG -->
+									<svg viewBox="0 0 24 24">
+										<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+									</svg>
+									<span>복사</span>
+								</button>
+							</div>
+						</div>
+						<h2 class="reader-title">${escapeHtml(data.title || data.reference)}</h2>
+						<blockquote class="reader-summary-box">
+							${escapeHtml(data.summary)}
+						</blockquote>
+					</div>
+					
+					<div class="reader-body" id="readerBodyScroll" style="--reader-font-size: ${readerFontSize}px">
+						${parseScriptureBody(data.text)}
+					</div>
+				</div>
+			`;
+			
+			// Desktop panel injection
+			readerPane.innerHTML = contentTemplate;
+			
+			// Mobile drawer injection
+			const drawerBody = document.getElementById("drawerBody");
+			drawerBody.innerHTML = contentTemplate;
+		}
+
+		// Font sizing adjustment handler
+		window.adjustFontSize = function(dir) {
+			readerFontSize = Math.max(13, Math.min(30, readerFontSize + dir));
+			
+			const textContainers = document.querySelectorAll(".reader-body");
+			textContainers.forEach(container => {
+				container.style.setProperty("--reader-font-size", `${readerFontSize}px`);
+			});
+		};
+
+		// Clipboard copying handler
+		window.copyReaderText = function(index) {
+			if (index < 0 || index >= searchResults.length) return;
+			const data = searchResults[index];
+			
+			const formattedText = `[${data.reference}] ${data.title || ""}\n요약: ${data.summary}\n\n${data.text}`;
+			navigator.clipboard.writeText(formattedText)
+				.then(() => showToast("📋 구절이 클립보드에 복사되었습니다."))
+				.catch(err => showToast("❌ 복사에 실패했습니다: " + err));
+		};
+
+		// Card click triggers card selection & view updates
+		window.selectCard = function(index) {
+			selectedIndex = index;
+			
+			// Highlight card
+			document.querySelectorAll(".card").forEach((c, idx) => {
+				if (idx === index) {
+					c.classList.add("selected");
+				} else {
+					c.classList.remove("selected");
+				}
+			});
+			
+			updateReader(index);
+			
+			// Check if mobile view is active (width < 1024px)
+			if (window.innerWidth <= 1024) {
+				openMobileDrawer();
+			}
+		};
+
+		// Mobile drawer helpers
+		function openMobileDrawer() {
+			document.getElementById("mobileDrawer").classList.add("open");
+			document.body.style.overflow = "hidden"; // disable body scroll
+		}
+
+		window.closeMobileDrawer = function() {
+			document.getElementById("mobileDrawer").classList.remove("open");
+			document.body.style.overflow = ""; // restore body scroll
+		};
+
+		// Run searches via API
+		async function runSearch() {
+			const query = queryInput.value.trim();
+			if (!query) {
+				showToast("🔍 검색어를 입력해 주세요.");
+				return;
+			}
+
+			// UI state: Loading
+			searchBtn.disabled = true;
+			document.body.classList.add("loading");
+			
+			// Load Skeleton Cards
+			resultsContainer.innerHTML = Array.from({ length: 4 }).map(() => `
+				<div class="card skeleton-card">
+					<div class="skeleton-shimmer sk-ref"></div>
+					<div class="skeleton-shimmer sk-title"></div>
+					<div class="skeleton-shimmer sk-desc1"></div>
+					<div class="skeleton-shimmer sk-desc2"></div>
+					<div class="skeleton-shimmer sk-tag"></div>
+				</div>
+			`).join("");
+			
+			// Reset reader
+			readerPane.innerHTML = `
+				<div class="reader-empty">
+					<div class="empty-icon">⏳</div>
+					<h3>마음 성경 찾는 중...</h3>
+					<p>검색 결과가 준비되는 대로 독서대에 성경이 펼쳐집니다.</p>
+				</div>
+			`;
+			
+			try {
+				const response = await fetch("/api/search", {
+					method: "POST",
+					headers: { "Content-Type": "application/json" },
+					body: JSON.stringify({ query, top_k: 5 })
+				});
+
+				if (!response.ok) {
+					throw new Error(`서버 에러 (HTTP ${response.status})`);
+				}
+
+				const data = await response.json();
+				searchResults = data.results || [];
+
+				// 일치율(%) 높은 순으로 정렬
+				searchResults.sort((a, b) => {
+					const aScore = a.distance !== undefined
+						? (a.distance === 0 ? 100 : Math.max(20, Math.min(99, Math.round((1 - Math.min(1.0, a.distance)) * 100))))
+						: 90;
+					const bScore = b.distance !== undefined
+						? (b.distance === 0 ? 100 : Math.max(20, Math.min(99, Math.round((1 - Math.min(1.0, b.distance)) * 100))))
+						: 90;
+					return bScore - aScore;
+				});
+				
+				// AI 분석 세부 패널은 출력하지 않는다.
+				
+				// Render card list
+				renderResults(searchResults);
+				
+				// Automatically select first result by default on desktop
+				if (searchResults.length > 0) {
+					selectCard(0);
+				}
+				
+			} catch (err) {
+				resultsContainer.innerHTML = `
+					<div class="card" style="border-color: var(--intent-anger-text); text-align: center; padding: 30px;">
+						<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div>
+						<h3 style="font-size: 15px; color: var(--intent-anger-text);">검색 중 오류 발생</h3>
+						<p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${escapeHtml(err.message)}</p>
+					</div>
+				`;
+			} finally {
+				searchBtn.disabled = false;
+				document.body.classList.remove("loading");
+			}
+		}
+
+		// Renders top insights box
+		function renderAIInsight(intentCode, expandedQuery, originalQuery) {
+			const info = EMOTION_MAP[intentCode] || EMOTION_MAP["general"];
+			
+			document.getElementById("intentEmoji").textContent = info.emoji;
+			document.getElementById("intentText").textContent = info.label;
+			document.getElementById("intentExplain").textContent = info.desc;
+			
+			// Apply emotion styling to the badge
+			const indicator = document.getElementById("intentIndicator");
+			indicator.style.setProperty("--intent-bg", `var(--intent-${info.colorVar}-bg)`);
+			indicator.style.setProperty("--intent-text", `var(--intent-${info.colorVar}-text)`);
+			
+			document.getElementById("originalQuerySpan").textContent = originalQuery;
+			document.getElementById("expandedQuerySpan").textContent = expandedQuery;
+			
+			insightPanel.style.display = "flex";
+		}
+
+		// Render the left card list
+		function renderResults(items) {
+			const stat = document.getElementById("resultsStat");
+			
+			if (!items.length) {
+				stat.textContent = "결과 0건";
+				resultsContainer.innerHTML = `
+					<div class="card" style="text-align: center; padding: 40px 20px; cursor: default;">
+						<div style="font-size: 32px; margin-bottom: 8px;">📭</div>
+						<h3 style="font-size: 15px; font-weight: 600;">관련 구절을 찾지 못했습니다</h3>
+						<p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">검색어 길이를 줄이거나, 다른 단어를 입력해 보세요.</p>
+					</div>
+				`;
+				return;
+			}
+
+			stat.textContent = `추천 구절 ${items.length}개`;
+			
+			resultsContainer.innerHTML = items.map((item, index) => {
+				const scorePercent = item.distance !== undefined ? 
+					(item.distance === 0 ? 100 : Math.max(20, Math.min(99, Math.round((1 - Math.min(1.0, item.distance)) * 100)))) : 90;
+				
+				// Staggered fadeUp transition delays
+				const staggerDelay = index * 0.06;
+				
+				return `
+					<article class="card" onclick="selectCard(${index})" style="animation: cardEntrance 0.35s ease ${staggerDelay}s both;">
+						<div class="card-top">
+							<div class="card-ref">${escapeHtml(item.reference)}</div>
+							<div class="match-score">${scorePercent}% 일치</div>
+						</div>
+						<h3 class="card-title">${escapeHtml(item.title || item.reference)}</h3>
+						<p class="card-summary">${escapeHtml(item.summary || item.text.substring(0, 80) + "...")}</p>
+					</article>
+				`;
+			}).join("");
+		}
+
+		// Initializations
+		initTheme();
+		
+		// Event listeners
+		searchBtn.addEventListener("click", runSearch);
+		queryInput.addEventListener("keydown", (e) => {
+			if (e.key === "Enter") runSearch();
+		});
+	</script>
+</body>
+</html>
