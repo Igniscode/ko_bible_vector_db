@@ -124,12 +124,12 @@ def _to_candidates(hits, passage_text_store):
 def build_hybrid_candidates(collection, passage_text_store, search_query):
     # 휴리스틱 보강 조회 없이 단일 벡터 검색만 수행한다.
     query_vector = jina_embed_text(search_query, task="retrieval.query")
-    hits = collection.search(
+    hits = collection.query_points(
         collection_name=COLLECTION_NAME,
-        query_vector=query_vector,
+        query=query_vector,
         limit=VECTOR_CANDIDATE_COUNT,
         with_payload=True,
-    )
+    ).points
     return _to_candidates(hits, passage_text_store)
 
 
