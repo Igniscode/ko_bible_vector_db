@@ -24,24 +24,21 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
-PASSAGE_TEXT_STORE_PATH = os.getenv(
-    "PASSAGE_TEXT_STORE_PATH",
-    os.path.join(DATA_DIR, "passage_texts.json"),
-)
+PASSAGE_TEXT_STORE_PATH = os.path.join(DATA_DIR, "passage_texts.json")
 
 COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "bible_passage_collection")
-QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")  
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
 JINA_API_KEY = os.getenv("JINA_API_KEY", "")
-JINA_EMBED_MODEL = os.getenv("JINA_EMBED_MODEL", "jina-embeddings-v3")
+JINA_EMBED_MODEL = os.getenv("JINA_EMBED_MODEL", "jina-embeddings-v3-text")
 JINA_EMBED_DIM = int(os.getenv("JINA_EMBED_DIM", "1024"))
 JINA_EMBED_API_URL = os.getenv("JINA_EMBED_API_URL", "https://api.jina.ai/v1/embeddings")
 
-BATCH_SIZE = int(os.getenv("BATCH_SIZE", "100"))
-JINA_MAX_RETRIES = int(os.getenv("JINA_MAX_RETRIES", "8"))
+BATCH_SIZE = int(os.getenv("BATCH_SIZE", "40"))
+JINA_MAX_RETRIES = int(os.getenv("JINA_MAX_RETRIES", "10"))
 JINA_RETRY_BASE_DELAY = float(os.getenv("JINA_RETRY_BASE_DELAY", "2.0"))
-JINA_RETRY_MAX_DELAY = float(os.getenv("JINA_RETRY_MAX_DELAY", "60.0"))
+JINA_RETRY_MAX_DELAY = float(os.getenv("JINA_RETRY_MAX_DELAY", "90.0"))
 
 
 # =========================

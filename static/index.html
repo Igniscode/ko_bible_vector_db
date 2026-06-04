@@ -1059,7 +1059,7 @@
 						<circle cx="11" cy="11" r="8"></circle>
 						<line x1="21" y1="21" x2="16.65" y2="16.65"></line>
 					</svg>
-					<input id="query" type="text" placeholder="검색하고자 하는 성경구절을 간략하게 적어주세요" />
+					<input id="query" type="text" maxlength="200" placeholder="검색하고자 하는 성경구절을 간략하게 적어주세요" />
 				</div>
 				<button id="searchBtn" class="search-btn">
 					<span class="spinner"></span>
@@ -1143,6 +1143,8 @@
 		let searchResults = [];
 		let selectedIndex = -1;
 		let readerFontSize = 17; // default size in px
+		const STATIC_API_KEY = "fc5b4866e43b0390d8f90280191dc480";
+		const MAX_QUERY_LENGTH = 200;
 
 		// DOM Cache
 		const queryInput = document.getElementById("query");
@@ -1371,6 +1373,11 @@
 				return;
 			}
 
+			if (query.length > MAX_QUERY_LENGTH) {
+				showToast(`⚠️ 검색어는 최대 ${MAX_QUERY_LENGTH}자까지 입력할 수 있습니다.`);
+				return;
+			}
+
 			// UI state: Loading
 			searchBtn.disabled = true;
 			document.body.classList.add("loading");
@@ -1398,12 +1405,25 @@
 			try {
 				const response = await fetch("/api/search", {
 					method: "POST",
-					headers: { "Content-Type": "application/json" },
+					headers: {
+						"Content-Type": "application/json",
+						"X-Static-Api-Key": STATIC_API_KEY,
+					},
 					body: JSON.stringify({ query, top_k: 5 })
 				});
 
 				if (!response.ok) {
-					throw new Error(`서버 에러 (HTTP ${response.status})`);
+					let userMessage = "요청을 처리하는 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+
+					if (response.status === 429) {
+						userMessage = "요청이 너무 많습니다. 잠시 후 다시 시도해 주세요.";
+					} else if (response.status === 400) {
+						userMessage = "입력값을 확인해 주세요.";
+					} else if (response.status === 403) {
+						userMessage = "허용되지 않은 요청입니다.";
+					}
+
+					throw new Error(userMessage);
 				}
 
 				const data = await response.json();
@@ -1431,11 +1451,13 @@
 				}
 				
 			} catch (err) {
+				const safeMessage = "요청을 처리하는 중 문제가 발생했습니다. 잠시 후 다시 시도해 주세요.";
+				const message = err && err.message ? err.message : safeMessage;
 				resultsContainer.innerHTML = `
 					<div class="card" style="border-color: var(--intent-anger-text); text-align: center; padding: 30px;">
 						<div style="font-size: 32px; margin-bottom: 8px;">⚠️</div>
 						<h3 style="font-size: 15px; color: var(--intent-anger-text);">검색 중 오류 발생</h3>
-						<p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${escapeHtml(err.message)}</p>
+						<p style="font-size: 13px; color: var(--text-secondary); margin-top: 4px;">${escapeHtml(message)}</p>
 					</div>
 				`;
 			} finally {

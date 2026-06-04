@@ -21,11 +21,11 @@ load_dotenv()
 COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "bible_passage_collection")
 PASSAGE_TEXT_STORE_PATH = "data/passage_texts.json"
 
-QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")
+QDRANT_URL = os.getenv("QDRANT_URL", "http://localhost:6333")  
 QDRANT_API_KEY = os.getenv("QDRANT_API_KEY")
 
 JINA_API_KEY = os.getenv("JINA_API_KEY", "")
-JINA_EMBED_MODEL = os.getenv("JINA_EMBED_MODEL", "jina-embeddings-v3")
+JINA_EMBED_MODEL = os.getenv("JINA_EMBED_MODEL", "jina-embeddings-v3-text")
 JINA_EMBED_DIM = int(os.getenv("JINA_EMBED_DIM", "1024"))
 JINA_EMBED_API_URL = os.getenv("JINA_EMBED_API_URL", "https://api.jina.ai/v1/embeddings")
 
@@ -91,47 +91,6 @@ def normalize_text(text: str) -> str:
     return text
 
 
-def detect_intent(user_query: str) -> str:
-    # 휴리스틱 의도분류를 사용하지 않고 중립 라벨만 유지한다.
-    _ = user_query
-    return "general"
-
-
-def expand_query(user_query: str, intent: str) -> str:
-    # 휴리스틱 확장 없이 원문 그대로 벡터 검색한다.
-    _ = intent
-    return user_query.strip()
-
-
-def calculate_rule_score(candidate, intent):
-    # 기존 인터페이스를 유지하면서 점수는 순수 벡터 distance만 사용한다.
-    _ = intent
-
-    if candidate.get("is_direct_match"):
-        return 9999.0
-
-    return -float(candidate.get("distance", 999.0))
-
-
-def rerank_by_rules(candidates, intent, final_count=5):
-    scored = []
-
-    for c in candidates:
-        score = calculate_rule_score(c, intent)
-        scored.append((score, c))
-
-    scored.sort(key=lambda x: x[0], reverse=True)
-
-    ranked = []
-
-    for score, c in scored:
-        c = dict(c)
-        c["rule_score"] = score
-        ranked.append(c)
-
-    return ranked[:final_count]
-
-
 def _to_candidates(hits, passage_text_store):
     candidates = []
 
@@ -185,7 +144,6 @@ def print_result(rank, candidate):
     print(f"요약: {candidate['summary']}")
     print(f"태그: {', '.join(candidate['tags'])}")
     print(f"벡터 거리: {candidate['distance']}")
-    print(f"정렬 점수: {candidate.get('rule_score', '')}")
 
     if candidate["modern_queries"]:
         print("\n현대어 연결:")
@@ -392,27 +350,17 @@ def main():
         if not query:
             continue
 
-        intent = detect_intent(query)
-        search_query = expand_query(query, intent)
-
-        print(f"\n감지된 의도: {intent}")
-        print(f"확장 검색문: {search_query}")
-
         candidates = build_hybrid_candidates(
             collection=collection,
             passage_text_store=passage_text_store,
-            search_query=search_query,
+            search_query=query,
         )
 
         if not candidates:
             print("검색 결과가 없습니다.")
             continue
 
-        final_results = rerank_by_rules(
-            candidates,
-            intent=intent,
-            final_count=FINAL_RESULT_COUNT,
-        )
+        final_results = candidates[:FINAL_RESULT_COUNT]
 
         for rank, candidate in enumerate(final_results, start=1):
             print_result(rank, candidate)
