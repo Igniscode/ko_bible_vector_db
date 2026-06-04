@@ -11,8 +11,6 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import requests
 from dotenv import load_dotenv
-from qdrant_client import QdrantClient
-from qdrant_client.http import models
 
 
 # =========================
@@ -49,24 +47,47 @@ def ensure_project_dirs():
     os.makedirs(DATA_DIR, exist_ok=True)
 
 
+def _qdrant_headers():
+    headers = {"Content-Type": "application/json"}
+    if QDRANT_API_KEY:
+        headers["api-key"] = QDRANT_API_KEY
+    return headers
+
+
+def _qdrant_base_url():
+    return QDRANT_URL.rstrip("/")
+
+
 def create_qdrant_client():
-    client = QdrantClient(
-        url=QDRANT_URL,
-        api_key=QDRANT_API_KEY,
-        check_compatibility=False,
+    base_url = _qdrant_base_url()
+    headers = _qdrant_headers()
+
+    get_resp = requests.get(
+        f"{base_url}/collections/{COLLECTION_NAME}",
+        headers=headers,
+        timeout=60,
     )
 
-    exists = client.collection_exists(collection_name=COLLECTION_NAME)
-    if not exists:
-        client.create_collection(
-            collection_name=COLLECTION_NAME,
-            vectors_config=models.VectorParams(
-                size=JINA_EMBED_DIM,
-                distance=models.Distance.COSINE,
-            ),
+    if get_resp.status_code == 404:
+        create_resp = requests.put(
+            f"{base_url}/collections/{COLLECTION_NAME}",
+            headers=headers,
+            json={
+                "vectors": {
+                    "size": JINA_EMBED_DIM,
+                    "distance": "Cosine",
+                }
+            },
+            timeout=60,
         )
+        create_resp.raise_for_status()
+    elif get_resp.status_code >= 400:
+        get_resp.raise_for_status()
 
-    return client
+    return {
+        "base_url": base_url,
+        "headers": headers,
+    }
 
 
 def jina_embed_texts(texts, task="retrieval.passage"):
@@ -243,21 +264,23 @@ def flush_batch(collection, batch_ids, batch_documents, batch_metadatas):
 
     vectors = jina_embed_texts(batch_documents, task="retrieval.passage")
     points = []
-
     for point_id, vector, payload in zip(batch_ids, vectors, batch_metadatas):
         points.append(
-            models.PointStruct(
-                id=to_qdrant_point_id(str(point_id)),
-                vector=vector,
-                payload=payload,
-            )
+            {
+                "id": to_qdrant_point_id(str(point_id)),
+                "vector": vector,
+                "payload": payload,
+            }
         )
 
-    collection.upsert(
-        collection_name=COLLECTION_NAME,
-        points=points,
-        wait=False,
+    upsert_resp = requests.put(
+        f"{collection['base_url']}/collections/{COLLECTION_NAME}/points",
+        headers=collection["headers"],
+        params={"wait": "false"},
+        json={"points": points},
+        timeout=120,
     )
+    upsert_resp.raise_for_status()
 
     count = len(batch_ids)
     batch_ids.clear()

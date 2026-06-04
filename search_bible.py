@@ -9,7 +9,6 @@ import json
 import re
 import requests
 from dotenv import load_dotenv
-from qdrant_client import QdrantClient
 
 
 # =========================
@@ -34,10 +33,41 @@ FINAL_RESULT_COUNT = 5
 
 
 def get_qdrant_client():
-    return QdrantClient(
-        url=QDRANT_URL,
-        api_key=QDRANT_API_KEY,
+    # app.py와의 기존 인터페이스 유지를 위해 연결 설정만 반환한다.
+    return {
+        "base_url": QDRANT_URL.rstrip("/"),
+        "api_key": QDRANT_API_KEY,
+    }
+
+
+def _qdrant_headers():
+    headers = {"Content-Type": "application/json"}
+    if QDRANT_API_KEY:
+        headers["api-key"] = QDRANT_API_KEY
+    return headers
+
+
+def _qdrant_search_points(query_vector, limit):
+    endpoint = f"{QDRANT_URL.rstrip('/')}" + f"/collections/{COLLECTION_NAME}/points/query"
+    payload = {
+        "query": query_vector,
+        "limit": limit,
+        "with_payload": True,
+    }
+
+    resp = requests.post(
+        endpoint,
+        headers=_qdrant_headers(),
+        json=payload,
+        timeout=60,
     )
+    resp.raise_for_status()
+
+    body = resp.json()
+    points = body.get("result", {}).get("points", [])
+    if isinstance(points, list):
+        return points
+    return []
 
 
 def jina_embed_text(text: str, task: str):
@@ -95,9 +125,9 @@ def _to_candidates(hits, passage_text_store):
     candidates = []
 
     for hit in hits:
-        meta = hit.payload or {}
-        passage_id = str(meta.get("passage_id") or hit.id)
-        score = float(hit.score or 0.0)
+        meta = hit.get("payload") or {}
+        passage_id = str(meta.get("passage_id") or hit.get("id"))
+        score = float(hit.get("score") or 0.0)
         distance = 1.0 - score
 
         stored = passage_text_store.get(passage_id, {})
@@ -123,13 +153,9 @@ def _to_candidates(hits, passage_text_store):
 
 def build_hybrid_candidates(collection, passage_text_store, search_query):
     # 휴리스틱 보강 조회 없이 단일 벡터 검색만 수행한다.
+    _ = collection
     query_vector = jina_embed_text(search_query, task="retrieval.query")
-    hits = collection.query_points(
-        collection_name=COLLECTION_NAME,
-        query=query_vector,
-        limit=VECTOR_CANDIDATE_COUNT,
-        with_payload=True,
-    ).points
+    hits = _qdrant_search_points(query_vector, VECTOR_CANDIDATE_COUNT)
     return _to_candidates(hits, passage_text_store)
 
 
