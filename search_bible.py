@@ -129,17 +129,12 @@ def _to_candidates(hits, passage_text_store):
         stored = passage_text_store.get(passage_id, {})
         text = stored.get("text", "본문 없음")
 
-        tags = safe_json_array(meta.get("tags_json", "[]"))
-        modern_queries = safe_json_array(meta.get("modern_queries_json", "[]"))
-
         candidates.append({
             "id": passage_id,
             "reference": meta.get("reference", ""),
             "book_name": meta.get("book_name", ""),
             "title": normalize_text(meta.get("title", "")),
             "summary": normalize_text(meta.get("summary", "")),
-            "tags": [normalize_text(x) for x in tags],
-            "modern_queries": [normalize_text(x) for x in modern_queries],
             "distance": distance,
             "text": text,
         })
@@ -164,7 +159,6 @@ def print_result(rank, candidate):
     print(f"{rank}. {candidate['reference']}")
     print(f"제목: {candidate['title']}")
     print(f"요약: {candidate['summary']}")
-    print(f"태그: {', '.join(candidate['tags'])}")
     print(f"벡터 거리: {candidate['distance']}")
 
     if candidate["modern_queries"]:
@@ -315,8 +309,6 @@ def get_direct_candidates(query: str, passage_text_store: dict):
                         "book_name": meta.get("book_name", ""),
                         "title": meta.get("title", ""),
                         "summary": meta.get("summary", ""),
-                        "tags": meta.get("tags", []),
-                        "modern_queries": meta.get("modern_queries", []),
                         "distance": 0.0,
                         "text": val.get("text", "본문 없음"),
                         "is_direct_match": True
@@ -339,8 +331,6 @@ def get_direct_candidates(query: str, passage_text_store: dict):
                     "book_name": meta.get("book_name", ""),
                     "title": meta.get("title", ""),
                     "summary": meta.get("summary", ""),
-                    "tags": meta.get("tags", []),
-                    "modern_queries": meta.get("modern_queries", []),
                     "distance": 0.0,
                     "text": val.get("text", "본문 없음"),
                     "is_direct_match": True

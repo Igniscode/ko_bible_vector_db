@@ -178,22 +178,9 @@ def normalize_metadata(metadata):
     title = clean_item(metadata.get("title", ""), 40)
     summary = clean_item(metadata.get("summary", ""), 200)
 
-    tags = metadata.get("tags", [])
-    modern_queries = metadata.get("modern_queries", [])
-
-    if not isinstance(tags, list):
-        tags = []
-    if not isinstance(modern_queries, list):
-        modern_queries = []
-
-    tags = [clean_item(x, 20) for x in tags if str(x).strip()][:10]
-    modern_queries = [clean_item(x, 60) for x in modern_queries if str(x).strip()][:5]
-
     return {
         "title": title,
         "summary": summary,
-        "tags": tags,
-        "modern_queries": modern_queries,
     }
 
 
@@ -202,9 +189,6 @@ def make_embedding_document(reference, metadata):
 {reference}
 {metadata['title']}
 {metadata['summary']}
-태그: {", ".join(metadata['tags'])}
-현대어 고민:
-{chr(10).join(metadata['modern_queries'])}
 """.strip()
 
 
@@ -221,8 +205,6 @@ def make_vector_metadata(item, metadata):
         "end_verse": int(item.get("end_verse", 0)),
         "title": metadata["title"],
         "summary": metadata["summary"],
-        "tags_json": json.dumps(metadata["tags"], ensure_ascii=False),
-        "modern_queries_json": json.dumps(metadata["modern_queries"], ensure_ascii=False),
     }
 
 
