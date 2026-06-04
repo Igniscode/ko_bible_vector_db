@@ -8,19 +8,15 @@ from collections import defaultdict, deque, OrderedDict
 from urllib.parse import urlparse
 
 from fastapi import FastAPI, HTTPException, Request
-from dotenv import load_dotenv
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 import search_bible
 
-
 os.environ["OMP_NUM_THREADS"] = "4"
 os.environ["MKL_NUM_THREADS"] = "4"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-load_dotenv()
 
 STATIC_PAGE_API_KEY = "fc5b4866e43b0390d8f90280191dc480"
 SEARCH_QUERY_MAX_LEN = 200
