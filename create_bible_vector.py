@@ -10,14 +10,11 @@ os.environ["MKL_NUM_THREADS"] = "4"
 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
 import requests
-from dotenv import load_dotenv
 
 
 # =========================
 # 설정
 # =========================
-
-load_dotenv()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATA_DIR = os.path.join(BASE_DIR, "data")

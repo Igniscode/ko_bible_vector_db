@@ -8,14 +8,10 @@ os.environ["TOKENIZERS_PARALLELISM"] = "false"
 import json
 import re
 import requests
-from dotenv import load_dotenv
-
 
 # =========================
 # 설정
 # =========================
-
-load_dotenv()
 
 COLLECTION_NAME = os.getenv("QDRANT_COLLECTION_NAME", "bible_passage_collection")
 PASSAGE_TEXT_STORE_PATH = "data/passage_texts.json"
