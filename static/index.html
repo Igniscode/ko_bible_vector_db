@@ -165,6 +165,28 @@
 			gap: 12px;
 		}
 
+		.info-btn {
+			background: var(--bg-card);
+			border: 1px solid var(--border-color);
+			color: var(--text-secondary);
+			height: 44px;
+			padding: 0 14px;
+			border-radius: 12px;
+			cursor: pointer;
+			font-size: 13px;
+			font-weight: 700;
+			font-family: inherit;
+			transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.info-btn:hover {
+			border-color: var(--border-color-hover);
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+			transform: translateY(-2px);
+		}
+
 		.theme-btn {
 			background: var(--bg-card);
 			border: 1px solid var(--border-color);
@@ -976,7 +998,31 @@
 			animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 		}
 
+		.drawer-close-btn {
+			position: absolute;
+			top: 14px;
+			right: 14px;
+			width: 34px;
+			height: 34px;
+			border: 1px solid var(--border-color);
+			border-radius: 10px;
+			background: var(--bg-card);
+			color: var(--text-secondary);
+			font-size: 20px;
+			line-height: 1;
+			cursor: pointer;
+			z-index: 2;
+			transition: all 0.2s ease;
+		}
+
+		.drawer-close-btn:hover {
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+			border-color: var(--border-color-hover);
+		}
+
 		#drawerBody {
+			padding-top: 48px;
 			overflow-y: auto;
 			-webkit-overflow-scrolling: touch;
 		}
@@ -986,20 +1032,120 @@
 			to { transform: translateY(0); }
 		}
 
-		.drawer-close-bar {
+		/* --- Tech Stack Info Modal --- */
+		.info-modal {
+			display: none;
+			position: fixed;
+			inset: 0;
+			z-index: 1200;
+		}
+
+		.info-modal.open {
+			display: block;
+		}
+
+		.info-modal-overlay {
+			position: absolute;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.55);
+			backdrop-filter: blur(4px);
+			animation: fadeIn 0.24s ease;
+		}
+
+		.info-modal-card {
+			position: relative;
+			width: min(200px, calc(100% - 24px));
+			margin: 70px auto 24px;
+			background: var(--reader-bg);
+			border: 1px solid var(--border-color);
+			border-radius: 20px;
+			box-shadow: var(--shadow-lg);
+			padding: 18px;
+			z-index: 1;
+			animation: cardEntrance 0.25s ease;
+		}
+
+		.info-modal-head {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			gap: 12px;
+			margin-bottom: 6px;
+		}
+
+		.info-modal-title {
+			font-size: 20px;
+			font-weight: 700;
+			letter-spacing: -0.4px;
+		}
+
+		.info-modal-close {
+			width: 36px;
+			height: 36px;
+			border-radius: 10px;
+			border: 1px solid var(--border-color);
+			background: transparent;
+			color: var(--text-secondary);
+			font-size: 18px;
+			cursor: pointer;
+			transition: all 0.2s ease;
+		}
+
+		.info-modal-close:hover {
+			background: var(--bg-card-hover);
+			color: var(--text-primary);
+			border-color: var(--border-color-hover);
+		}
+
+		.info-list {
+			list-style: none;
+			display: flex;
+			flex-direction: column;
 			width: 100%;
-			height: 24px;
+			align-items: center;
+			gap: 10px;
+			padding: 0;
+			margin: 0;
+		}
+
+		.info-list li {
 			display: flex;
 			align-items: center;
 			justify-content: center;
-			cursor: pointer;
+			font-size: 14px;
+			font-weight: 500;
+			color: var(--text-primary);
 		}
 
-		.drawer-close-indicator {
-			width: 40px;
-			height: 5px;
-			background: var(--border-color);
-			border-radius: 99px;
+		.info-logo-item {
+			width: 152px;
+			padding: 8px 10px;
+			border-radius: 8px;
+			border: 1px solid #d9d9d9;
+			background: #ffffff;
+			justify-content: center;
+		}
+
+		.info-logo-item.qdrant {
+			border-color: #1f1f1f;
+			background: #121212;
+		}
+
+		.info-logo {
+			width: 120px;
+			height: 24px;
+			object-fit: contain;
+			display: block;
+		}
+
+		.info-text-item {
+			width: 152px;
+			padding: 8px 10px;
+			border-radius: 8px;
+			border: 1px solid var(--border-color);
+			background: var(--bg-card);
+			font-size: 16px;
+			font-weight: 700;
 		}
 
 		/* --- Media Queries --- */
@@ -1038,6 +1184,24 @@
 			.card {
 				padding: 16px;
 			}
+
+			.info-modal-card {
+				margin: 16px;
+				padding: 18px;
+			}
+
+			.drawer-close-btn {
+				top: 12px;
+				right: 12px;
+			}
+
+			#drawerBody {
+				padding-top: 44px;
+			}
+
+			.drawer-container .verses-container {
+				font-size: 16px;
+			}
 		}
 	</style>
 </head>
@@ -1056,6 +1220,7 @@
 			</div>
 			
 			<div class="header-controls">
+				<button id="techInfoBtn" class="info-btn" aria-label="제작 정보 보기">제작 정보</button>
 				<!-- Light/Dark Mode Switcher -->
 				<button id="themeToggle" class="theme-btn" aria-label="테마 전환">
 					<!-- Sun SVG -->
@@ -1089,26 +1254,6 @@
 			
 		</section>
 
-		<!-- AI Intent & Query Insights (Hidden initially) -->
-		<section id="insightPanel" class="insight-panel" style="display: none;">
-			<div class="insight-header">
-				<div class="intent-indicator" id="intentIndicator">
-					<span id="intentEmoji">🌱</span>
-					<span id="intentText">일반</span>
-				</div>
-				<div class="intent-explain" id="intentExplain">당신의 마음에 귀 기울여 최적의 성경 구절을 탐색했습니다.</div>
-			</div>
-			<div class="expansion-accordion">
-				<details>
-					<summary>AI 검색 분석 세부사항 (검색어 확장)</summary>
-					<div class="expansion-content">
-						<div><strong>원문 입력:</strong> "<span id="originalQuerySpan"></span>"</div>
-						<div><strong>의도 분석에 따른 성경적 확장 쿼리:</strong> "<span id="expandedQuerySpan"></span>"</div>
-					</div>
-				</details>
-			</div>
-		</section>
-
 		<!-- Main Desktop/Tablet Dashboard Grid -->
 		<div class="main-layout">
 			<!-- Left side results list -->
@@ -1122,9 +1267,9 @@
 					<!-- Welcome/Prompt state -->
 					<div class="card" style="text-align: center; padding: 40px 20px; cursor: default;">
 						<div style="font-size: 40px; margin-bottom: 12px; filter: grayscale(0.2);">✨</div>
-						<h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">마음을 치유하는 검색</h3>
+						<h3 style="font-size: 16px; font-weight: 700; margin-bottom: 6px;">성경 구절 검색</h3>
 						<p style="font-size: 13px; color: var(--text-secondary);">
-							감정을 분석하여 가장 잘 위로해 줄 수 있는 구절을 찾아드립니다. 예시를 누르거나 고민을 직접 입력하세요.
+							입력한 검색어와 관련된 성경 구절이나 단락을 찾습니다.
 						</p>
 					</div>
 				</div>
@@ -1135,7 +1280,7 @@
 				<div class="reader-empty">
 					<div class="empty-icon">📖</div>
 					<h3>말씀 독서대</h3>
-					<p>왼쪽 검색 결과에서 구절을 클릭하시면 여기에 전체 본문이 아름답게 펼쳐집니다.</p>
+					<p>왼쪽 검색 결과에서 구절을 클릭하시면 여기에 전체 본문이 펼쳐집니다.</p>
 				</div>
 			</div>
 		</div>
@@ -1145,12 +1290,27 @@
 	<div id="mobileDrawer" class="mobile-drawer">
 		<div class="drawer-overlay" onclick="closeMobileDrawer()"></div>
 		<div class="drawer-container">
-			<div class="drawer-close-bar" onclick="closeMobileDrawer()">
-				<div class="drawer-close-indicator"></div>
-			</div>
+			<button class="drawer-close-btn" onclick="closeMobileDrawer()" aria-label="닫기">×</button>
 			<div id="drawerBody" style="flex: 1; display: flex; flex-direction: column;">
 				<!-- Selected content cloned here dynamically -->
 			</div>
+		</div>
+	</div>
+
+	<!-- Project/Tech Info Modal -->
+	<div id="techInfoModal" class="info-modal" role="dialog" aria-modal="true" aria-labelledby="techInfoTitle">
+		<div class="info-modal-overlay" onclick="closeTechInfoModal()"></div>
+		<div class="info-modal-card">
+			<div class="info-modal-head">
+				<h2 class="info-modal-title" id="techInfoTitle">제작 정보</h2>
+				<button class="info-modal-close" onclick="closeTechInfoModal()" aria-label="창 닫기">×</button>
+			</div>
+			<ul class="info-list">
+				<li class="info-logo-item"><img class="info-logo" src="/static/jina-logo.svg" alt="Jina" /></li>
+				<li class="info-logo-item qdrant"><img class="info-logo" src="/static/qdrant-logo.svg" alt="Qdrant" /></li>
+				<li class="info-logo-item"><img class="info-logo" src="/static/vercel-logo.svg" alt="Vercel" /></li>
+				<li class="info-text-item">개역한글성경</li>
+			</ul>
 		</div>
 	</div>
 
@@ -1169,8 +1329,9 @@
 		const searchBtn = document.getElementById("searchBtn");
 		const resultsContainer = document.getElementById("results");
 		const readerPane = document.getElementById("readerPane");
-		const insightPanel = document.getElementById("insightPanel");
 		const themeToggle = document.getElementById("themeToggle");
+		const techInfoBtn = document.getElementById("techInfoBtn");
+		const techInfoModal = document.getElementById("techInfoModal");
 		
 		// Preset Chips
 		document.querySelectorAll(".chip").forEach(chip => {
@@ -1198,6 +1359,24 @@
 			document.documentElement.setAttribute("data-theme", newTheme);
 			localStorage.setItem("theme", newTheme);
 			showToast(newTheme === "dark" ? "🌙 다크 모드로 전환되었습니다." : "☀️ 라이트 모드로 전환되었습니다.");
+		});
+
+		window.closeTechInfoModal = function() {
+			techInfoModal.classList.remove("open");
+			document.body.style.overflow = "";
+		};
+
+		function openTechInfoModal() {
+			techInfoModal.classList.add("open");
+			document.body.style.overflow = "hidden";
+		}
+
+		techInfoBtn.addEventListener("click", openTechInfoModal);
+
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape" && techInfoModal.classList.contains("open")) {
+				closeTechInfoModal();
+			}
 		});
 
 		// Toast helper
@@ -1251,18 +1430,6 @@
 
 			return null;
 		}
-
-		// Emotion mappings to beautiful display metadata
-		const EMOTION_MAP = {
-			general: { label: "일상/지혜", emoji: "🌱", colorVar: "general", desc: "마음을 차분히 비우고, 지혜와 일상의 소망을 심어주는 말씀입니다." },
-			temptation: { label: "유혹/관계경계", emoji: "🧭", colorVar: "guilt", desc: "관계의 경계를 지키고 싶은 마음을 붙들어, 정결함과 절제를 선택하도록 돕는 말씀입니다." },
-			anxiety: { label: "불안/걱정", emoji: "😰", colorVar: "anxiety", desc: "불안과 두려운 마음을 평온하게 감싸며 용기와 위로를 불어넣는 말씀입니다." },
-			guilt: { label: "죄책감/자책", emoji: "😔", colorVar: "guilt", desc: "무거운 자책감 속에서 자유하게 하며, 회복과 용서의 은혜를 전하는 말씀입니다." },
-			lonely: { label: "외로움/고립", emoji: "👥", colorVar: "lonely", desc: "세상에 홀로 남겨진 듯할 때, 곁에 서서 동행해주시는 하나님의 말씀입니다." },
-			exhausted: { label: "피로/번아웃", emoji: "🔋", colorVar: "exhausted", desc: "일상에 완전히 지친 당신에게 깊은 영혼의 안식과 힘을 채워주는 말씀입니다." },
-			anger: { label: "분노/억울함", emoji: "🔥", colorVar: "anger", desc: "억울함과 성난 파도 같은 분노의 마음을 다스리고 평화와 용서를 배우게 합니다." },
-			sadness: { label: "슬픔/우울", emoji: "💧", colorVar: "sadness", desc: "끝없는 눈물과 슬픔 속에서 상처를 닦고 소망의 손을 건네주시는 말씀입니다." }
-		};
 
 		// Parse raw Bible passages to verse rows
 		function parseScriptureBody(text, highlightVerseNumber = null) {
@@ -1501,8 +1668,8 @@
 			readerPane.innerHTML = `
 				<div class="reader-empty">
 					<div class="empty-icon">⏳</div>
-					<h3>마음 성경 찾는 중...</h3>
-					<p>검색 결과가 준비되는 대로 독서대에 성경이 펼쳐집니다.</p>
+					<h3>성경 구절 찾는 중...</h3>
+					<p>검색 결과가 준비되는 대로 독서대에 본문이 펼쳐집니다.</p>
 				</div>
 			`;
 			
@@ -1568,25 +1735,6 @@
 				searchBtn.disabled = false;
 				document.body.classList.remove("loading");
 			}
-		}
-
-		// Renders top insights box
-		function renderAIInsight(intentCode, expandedQuery, originalQuery) {
-			const info = EMOTION_MAP[intentCode] || EMOTION_MAP["general"];
-			
-			document.getElementById("intentEmoji").textContent = info.emoji;
-			document.getElementById("intentText").textContent = info.label;
-			document.getElementById("intentExplain").textContent = info.desc;
-			
-			// Apply emotion styling to the badge
-			const indicator = document.getElementById("intentIndicator");
-			indicator.style.setProperty("--intent-bg", `var(--intent-${info.colorVar}-bg)`);
-			indicator.style.setProperty("--intent-text", `var(--intent-${info.colorVar}-text)`);
-			
-			document.getElementById("originalQuerySpan").textContent = originalQuery;
-			document.getElementById("expandedQuerySpan").textContent = expandedQuery;
-			
-			insightPanel.style.display = "flex";
 		}
 
 		// Render the left card list
