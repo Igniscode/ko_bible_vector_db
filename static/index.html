@@ -817,7 +817,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: 14px;
-			text-align: justify;
+			text-align: left;
 		}
 
 		.verse-row {
@@ -851,7 +851,8 @@
 
 		.verse-content {
 			flex: 1;
-			word-break: keep-all;
+			word-break: break-all;
+			overflow-wrap: anywhere;
 		}
 
 		.verse-row-highlight .verse-content {
@@ -860,7 +861,8 @@
 
 		.verse-fallback {
 			font-family: inherit;
-			word-break: keep-all;
+			word-break: break-all;
+			overflow-wrap: anywhere;
 		}
 
 		/* --- Reader Footer (Modern Applications) --- */
