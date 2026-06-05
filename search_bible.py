@@ -17,6 +17,30 @@ from utils import (
 )
 
 
+PASSAGE_KEYWORDS = [
+    "이야기",
+    "내용",
+    "장면",
+    "부분",
+    "사건",
+    "비유",
+    "단락",
+    "문맥",
+    "어디야",
+    "어디에 나와",
+    "나오는 곳",
+]
+
+
+def has_passage_keywords(query: str) -> bool:
+    q = query.strip()
+    if any(k in q for k in PASSAGE_KEYWORDS):
+        return True
+
+    # "~한 이야기", "~한 장면" 등은 passage 성격으로 본다.
+    return bool(re.search(r".+한\s*(이야기|내용|장면|부분|사건)", q))
+
+
 def safe_json_array(value):
     try:
         parsed = json.loads(value or "[]")
@@ -259,35 +283,6 @@ def should_search_verse(query: str):
     if book_name:
         return False
 
-    passage_keywords = [
-        "이야기",
-        "내용",
-        "장면",
-        "부분",
-        "사건",
-        "비유",
-        "가르침",
-        "설교",
-        "문맥",
-        "배경",
-        "본문",
-        "구절들",
-        "말씀들",
-        "어디야",
-        "어디에 나와",
-        "나오는 곳",
-    ]
-
-
-    # 이야기/장면/내용은 passage 검색
-    if any(k in q for k in passage_keywords):
-        return False
-
-
-    # "~한 이야기", "~한 장면" 등은 passage 검색
-    if re.search(r".+한\s*(이야기|내용|장면|부분|사건|비유|본문)", q):
-        return False
-
     # 짧은 구문은 verse 검색
     if len(q) <= 30:
         return True
@@ -306,18 +301,23 @@ def search_auto(query: str, passage_text_store: dict):
     if direct_candidates:
         return "direct", direct_candidates[:FINAL_RESULT_COUNT]
 
-    # 2. 짧은 구절/문장 → 절 벡터 검색
-    if should_search_verse(query):
+    # 2. 절 벡터 검색이 필요한지 판단
+    # passage 키워드가 있어도 verse 80% 이상이면 verse로 채택한다.
+    if should_search_verse(query) or has_passage_keywords(query):
         verse_candidates = build_verse_candidates(
             search_query=query,
             limit=FINAL_RESULT_COUNT,
         )
-        # verse_candidates 에서 distance 0.60 이하인 후보가 있으면 verse 검색 결과로 간주
-        if any(c.get("distance", 1.0) <= 0.60 for c in verse_candidates):
+
+        verse_distance_threshold = 0.60
+        if has_passage_keywords(query):
+            verse_distance_threshold = 0.20  # 80% 이상 일치
+
+        if any(c.get("distance", 1.0) <= verse_distance_threshold for c in verse_candidates):
             return "verse", verse_candidates[:FINAL_RESULT_COUNT]
         else:
             # 그렇지 않으면 passage 검색으로 간주
-             pass
+            pass
     # 3. 이야기/내용 → passage 벡터 검색
     passage_candidates = build_passage_candidates(
         passage_text_store=passage_text_store,
