@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import os
 import time
 import threading
 import copy
@@ -12,17 +11,15 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from config import (
+	PASSAGE_TEXT_STORE_PATH,
+	SEARCH_CACHE_MAX_ITEMS,
+	SEARCH_CACHE_TTL_SEC,
+	SEARCH_QUERY_MAX_LEN,
+	SEARCH_RATE_LIMIT_PER_MIN,
+	STATIC_PAGE_API_KEY,
+)
 import search_bible
-
-os.environ["OMP_NUM_THREADS"] = "4"
-os.environ["MKL_NUM_THREADS"] = "4"
-os.environ["TOKENIZERS_PARALLELISM"] = "false"
-
-STATIC_PAGE_API_KEY = "fc5b4866e43b0390d8f90280191dc480"
-SEARCH_QUERY_MAX_LEN = 200
-SEARCH_RATE_LIMIT_PER_MIN = 10
-SEARCH_CACHE_TTL_SEC = 180
-SEARCH_CACHE_MAX_ITEMS = 500
 
 
 class SearchRequest(BaseModel):
@@ -31,6 +28,7 @@ class SearchRequest(BaseModel):
 
 
 class SearchResponse(BaseModel):
+	search_mode: str
 	results: list
 
 
@@ -90,14 +88,10 @@ _cache_lock = threading.Lock()
 
 
 def _ensure_loaded():
-	global _collection
 	global _passage_text_store
 
-	if _collection is None:
-		_collection = search_bible.get_qdrant_client()
-
 	if _passage_text_store is None:
-		with open(search_bible.PASSAGE_TEXT_STORE_PATH, "r", encoding="utf-8") as f:
+		with open(PASSAGE_TEXT_STORE_PATH, "r", encoding="utf-8") as f:
 			_passage_text_store = json.load(f)
 
 
@@ -186,8 +180,8 @@ def index():
 	)
 
 
-@app.post("/api/search", response_model=SearchResponse)
-def search_api(req: SearchRequest, request: Request):
+@app.post("/api/search")
+def search_api(req: SearchRequest, request: Request) -> SearchResponse:
 	client_ip = _get_client_ip(request)
 	_check_rate_limit(client_ip)
 
@@ -209,40 +203,13 @@ def search_api(req: SearchRequest, request: Request):
 		return cached
 
 	try:
-		# 1) 구절 직접 검색 여부 확인
-		direct_candidates = search_bible.get_direct_candidates(query, _passage_text_store)
-
-		# 2) 하이브리드 검색 후보군 획득
-		candidates = search_bible.build_hybrid_candidates(
-			collection=_collection,
-			passage_text_store=_passage_text_store,
-			search_query=query,
-		)
-
-		# 3) 구절 직접 매칭 결과를 앞쪽에 두고 id 기준 중복 제거
-		if direct_candidates:
-			seen = set()
-			merged = []
-
-			for dc in direct_candidates:
-				dc_id = dc.get("id")
-				if dc_id in seen:
-					continue
-				seen.add(dc_id)
-				merged.append(dc)
-
-			for c in candidates:
-				c_id = c.get("id")
-				if c_id in seen:
-					continue
-				seen.add(c_id)
-				merged.append(c)
-
-			candidates = merged
+		# 현재 검색 흐름은 search_bible.search_auto가 직접/절/청크를 모두 라우팅한다.
+		search_mode, candidates = search_bible.search_auto(query, _passage_text_store)
 
 		final_results = candidates[:req.top_k]
 
 		response_payload = {
+			"search_mode": search_mode,
 			"results": final_results,
 		}
 

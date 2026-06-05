@@ -524,6 +524,7 @@
 			display: flex;
 			justify-content: space-between;
 			align-items: center;
+			gap: 12px;
 		}
 
 		.card-ref {
@@ -541,6 +542,17 @@
 			color: var(--tag-text);
 			padding: 3px 8px;
 			border-radius: 6px;
+		}
+
+		.result-type-badge {
+			font-size: 11.5px;
+			font-weight: 700;
+			padding: 3px 8px;
+			border-radius: 999px;
+			background: rgba(59, 183, 120, 0.14);
+			color: var(--accent-hover);
+			border: 1px solid rgba(59, 183, 120, 0.08);
+			white-space: nowrap;
 		}
 
 		.card-title {
@@ -585,11 +597,9 @@
 			box-shadow: var(--shadow-lg);
 			position: sticky;
 			top: 24px;
-			min-height: calc(100vh - 160px);
-			max-height: calc(100vh - 80px);
 			display: flex;
 			flex-direction: column;
-			overflow: hidden;
+			overflow: visible;
 			transition: transform 0.3s ease, background 0.4s ease;
 		}
 
@@ -625,9 +635,7 @@
 		.reader-content {
 			display: flex;
 			flex-direction: column;
-			height: 100%;
-			flex: 1;
-			overflow: hidden;
+			height: auto;
 		}
 
 		.reader-header {
@@ -653,6 +661,17 @@
 			display: flex;
 			align-items: center;
 			gap: 6px;
+		}
+
+		.reader-kind-badge {
+			font-size: 11.5px;
+			font-weight: 700;
+			padding: 3px 8px;
+			border-radius: 999px;
+			background: var(--tag-bg);
+			color: var(--tag-text);
+			border: 1px solid rgba(59, 183, 120, 0.06);
+			white-space: nowrap;
 		}
 
 		.reader-tools {
@@ -726,6 +745,26 @@
 			letter-spacing: -0.6px;
 		}
 
+		.reader-title-action {
+			background: transparent;
+			border: none;
+			padding: 0;
+			margin: 0;
+			font: inherit;
+			font-size: 30px;
+			line-height: 1.25;
+			color: inherit;
+			text-align: left;
+			cursor: pointer;
+			text-decoration: underline;
+			text-decoration-color: rgba(59, 183, 120, 0.55);
+			text-underline-offset: 3px;
+		}
+
+		.reader-title-action:hover {
+			color: var(--accent-color);
+		}
+
 		.reader-summary-box {
 			background: var(--bg-input);
 			border-left: 3px solid var(--accent-color);
@@ -739,8 +778,7 @@
 
 		/* --- Scrollable Scripture View --- */
 		.reader-body {
-			flex: 1;
-			overflow-y: auto;
+			overflow: visible;
 			padding: 28px;
 			display: flex;
 			flex-direction: column;
@@ -766,6 +804,13 @@
 			gap: 12px;
 		}
 
+		.verse-row-highlight {
+			background: rgba(59, 183, 120, 0.12);
+			border: 1px solid rgba(59, 183, 120, 0.3);
+			border-radius: 10px;
+			padding: 8px 10px;
+		}
+
 		.verse-number {
 			font-family: "Outfit", "Inter", sans-serif;
 			font-size: 11px;
@@ -777,9 +822,18 @@
 			user-select: none;
 		}
 
+		.verse-row-highlight .verse-number {
+			color: var(--accent-hover);
+			font-size: 12px;
+		}
+
 		.verse-content {
 			flex: 1;
 			word-break: keep-all;
+		}
+
+		.verse-row-highlight .verse-content {
+			font-weight: 600;
 		}
 
 		.verse-fallback {
@@ -852,45 +906,6 @@
 		.sk-desc1 { width: 90%; height: 14px; margin-bottom: 6px; }
 		.sk-desc2 { width: 80%; height: 14px; margin-bottom: 8px; }
 		.sk-tag { width: 30%; height: 16px; border-radius: 99px; }
-
-		/* --- Custom Toast System --- */
-		.toast-container {
-			position: fixed;
-			bottom: 24px;
-			right: 24px;
-			z-index: 1000;
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-		}
-
-		.toast {
-			background: var(--bg-card-solid);
-			color: var(--text-primary);
-			border: 1px solid var(--accent-color);
-			padding: 12px 20px;
-			border-radius: 12px;
-			box-shadow: var(--shadow-lg);
-			font-size: 14px;
-			font-weight: 500;
-			display: flex;
-			align-items: center;
-			gap: 8px;
-			animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
-		}
-
-		@keyframes slideIn {
-			from { transform: translateY(20px); opacity: 0; }
-			to { transform: translateY(0); opacity: 1; }
-		}
-
-		.toast.fade-out {
-			animation: fadeOut 0.3s ease both;
-		}
-
-		@keyframes fadeOut {
-			to { opacity: 0; transform: translateY(8px); }
-		}
 
 		/* --- Scrollbar Customization --- */
 		::-webkit-scrollbar {
@@ -1134,14 +1149,12 @@
 		</div>
 	</div>
 
-	<!-- Floating Toast Notification -->
-	<div id="toastContainer" class="toast-container"></div>
-
 	<!-- --- Interface Controller Script --- -->
 	<script>
 		// State variables
 		let searchResults = [];
 		let selectedIndex = -1;
+		let currentReaderData = null;
 		let readerFontSize = 17; // default size in px
 		const STATIC_API_KEY = "fc5b4866e43b0390d8f90280191dc480";
 		const MAX_QUERY_LENGTH = 200;
@@ -1153,7 +1166,6 @@
 		const readerPane = document.getElementById("readerPane");
 		const insightPanel = document.getElementById("insightPanel");
 		const themeToggle = document.getElementById("themeToggle");
-		const toastContainer = document.getElementById("toastContainer");
 		
 		// Preset Chips
 		document.querySelectorAll(".chip").forEach(chip => {
@@ -1185,23 +1197,7 @@
 
 		// Toast helper
 		function showToast(message) {
-			const toast = document.createElement("div");
-			toast.className = "toast";
-			toast.innerHTML = `
-				<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-					<path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-				</svg>
-				<span>${message}</span>
-			`;
-			toastContainer.appendChild(toast);
-			
-			// Remove after 3s
-			setTimeout(() => {
-				toast.classList.add("fade-out");
-				toast.addEventListener("animationend", () => {
-					toast.remove();
-				});
-			}, 3000);
+			void message;
 		}
 
 		// Helper to escape HTML characters securely
@@ -1212,6 +1208,43 @@
 				.replaceAll(">", "&gt;")
 				.replaceAll('"', "&quot;")
 				.replaceAll("'", "&#39;");
+		}
+
+		function getResultKindLabel(item) {
+			if (!item) return "";
+			if (item.is_direct_match) return "직접 일치";
+			if (item.type === "verse") return "절";
+			if (item.type === "passage") return "단락";
+			return item.type ? String(item.type) : "";
+		}
+
+		function getContainingPassageQuery(item) {
+			if (!item) return "";
+
+			const raw = String(item.raw || "").trim();
+			const rawRefMatch = raw.match(/^([가-힣]+\d+:\d+)/);
+			if (rawRefMatch) {
+				return rawRefMatch[1];
+			}
+
+			return String(item.reference || "").trim();
+		}
+
+		function getVerseNumber(item) {
+			if (!item) return null;
+
+			const fromReference = String(item.reference || "").match(/:(\d+)(?:\D|$)/);
+			if (fromReference) {
+				return Number(fromReference[1]);
+			}
+
+			const raw = String(item.raw || "").trim();
+			const fromRaw = raw.match(/^[가-힣]+\d+:(\d+)/);
+			if (fromRaw) {
+				return Number(fromRaw[1]);
+			}
+
+			return null;
 		}
 
 		// Emotion mappings to beautiful display metadata
@@ -1227,7 +1260,7 @@
 		};
 
 		// Parse raw Bible passages to verse rows
-		function parseScriptureBody(text) {
+		function parseScriptureBody(text, highlightVerseNumber = null) {
 			if (!text) return '<div class="verse-fallback">본문 텍스트가 없습니다.</div>';
 			
 			const lines = text.split("\n");
@@ -1242,8 +1275,10 @@
 				
 				if (match) {
 					const [_, bookName, chapter, verseNum, verseText] = match;
+					const verseNumAsNumber = Number(verseNum);
+					const isHighlighted = Number.isFinite(highlightVerseNumber) && verseNumAsNumber === highlightVerseNumber;
 					parsedHtml += `
-						<div class="verse-row">
+						<div class="verse-row${isHighlighted ? " verse-row-highlight" : ""}">
 							<span class="verse-number">${verseNum}</span>
 							<span class="verse-content">${escapeHtml(verseText)}</span>
 						</div>
@@ -1265,6 +1300,13 @@
 		function updateReader(index) {
 			if (index < 0 || index >= searchResults.length) return;
 			const data = searchResults[index];
+			currentReaderData = data;
+			const resultKind = getResultKindLabel(data);
+			const showSummary = data.type !== "verse" && Boolean(String(data.summary || "").trim());
+			const titleText = escapeHtml(data.title || data.reference);
+			const titleHtml = data.type === "verse"
+				? `<button class="reader-title reader-title-action" onclick="openContainingPassage(${index})" title="이 절이 포함된 단락 보기">${titleText}</button>`
+				: `<h2 class="reader-title">${titleText}</h2>`;
 			
 			
 			const contentTemplate = `
@@ -1277,13 +1319,14 @@
 									<path d="M17 3H7c-1.1 0-2 .9-2 2v16l7-3 7 3V5c0-1.1-.9-2-2-2z"/>
 								</svg>
 								<span>${escapeHtml(data.reference)}</span>
+								<span class="reader-kind-badge">${escapeHtml(resultKind)}</span>
 							</div>
 							<div class="reader-tools">
 								<div class="font-adjust-group">
 									<button class="font-btn" onclick="adjustFontSize(-1)" title="글씨 축소">A-</button>
 									<button class="font-btn" onclick="adjustFontSize(1)" title="글씨 확대">A+</button>
 								</div>
-								<button class="tool-btn" onclick="copyReaderText(${index})" title="구절 복사">
+								<button class="tool-btn" onclick="copyReaderText()" title="구절 복사">
 									<!-- Copy SVG -->
 									<svg viewBox="0 0 24 24">
 										<path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
@@ -1292,14 +1335,12 @@
 								</button>
 							</div>
 						</div>
-						<h2 class="reader-title">${escapeHtml(data.title || data.reference)}</h2>
-						<blockquote class="reader-summary-box">
-							${escapeHtml(data.summary)}
-						</blockquote>
+						${titleHtml}
+						${showSummary ? `<blockquote class="reader-summary-box">${escapeHtml(data.summary)}</blockquote>` : ""}
 					</div>
 					
 					<div class="reader-body" id="readerBodyScroll" style="--reader-font-size: ${readerFontSize}px">
-						${parseScriptureBody(data.text)}
+						${parseScriptureBody(data.text, data.highlightVerseNumber)}
 					</div>
 				</div>
 			`;
@@ -1323,14 +1364,72 @@
 		};
 
 		// Clipboard copying handler
-		window.copyReaderText = function(index) {
-			if (index < 0 || index >= searchResults.length) return;
-			const data = searchResults[index];
-			
-			const formattedText = `[${data.reference}] ${data.title || ""}\n요약: ${data.summary}\n\n${data.text}`;
+		window.copyReaderText = function() {
+			const data = currentReaderData;
+			if (!data) return;
+
+			const summaryLine = data.type !== "verse" && String(data.summary || "").trim()
+				? `\n요약: ${data.summary}`
+				: "";
+
+			const formattedText = `[${data.reference}] ${data.title || ""}${summaryLine}\n\n${data.text}`;
 			navigator.clipboard.writeText(formattedText)
 				.then(() => showToast("📋 구절이 클립보드에 복사되었습니다."))
 				.catch(err => showToast("❌ 복사에 실패했습니다: " + err));
+		};
+
+		window.openContainingPassage = async function(index) {
+			if (index < 0 || index >= searchResults.length) return;
+
+			const verseItem = searchResults[index];
+			if (verseItem.type !== "verse") return;
+
+			const lookupQuery = getContainingPassageQuery(verseItem);
+			if (!lookupQuery) {
+				showToast("해당 절의 단락을 찾기 위한 참조 정보를 확인할 수 없습니다.");
+				return;
+			}
+
+			try {
+				const response = await fetch("/api/search", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/json",
+						"X-Static-Api-Key": STATIC_API_KEY,
+					},
+					body: JSON.stringify({ query: lookupQuery, top_k: 5 })
+				});
+
+				if (!response.ok) {
+					throw new Error("단락 조회 실패");
+				}
+
+				const data = await response.json();
+				const passage = (data.results || []).find(item => item.type === "passage");
+
+				if (!passage) {
+					showToast("이 절이 포함된 단락을 찾지 못했습니다.");
+					return;
+				}
+
+				const targetVerseNumber = getVerseNumber(verseItem);
+				if (targetVerseNumber) {
+					passage.highlightVerseNumber = targetVerseNumber;
+				}
+
+				const backup = searchResults;
+				searchResults = [passage];
+				updateReader(0);
+				searchResults = backup;
+
+				showToast("해당 절이 포함된 단락을 표시했습니다.");
+
+				if (window.innerWidth <= 1024) {
+					openMobileDrawer();
+				}
+			} catch (err) {
+				showToast("단락을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.");
+			}
 		};
 
 		// Card click triggers card selection & view updates
@@ -1506,6 +1605,7 @@
 			resultsContainer.innerHTML = items.map((item, index) => {
 				const scorePercent = item.distance !== undefined ? 
 					(item.distance === 0 ? 100 : Math.max(20, Math.min(99, Math.round((1 - Math.min(1.0, item.distance)) * 100)))) : 90;
+				const resultKind = getResultKindLabel(item);
 				
 				// Staggered fadeUp transition delays
 				const staggerDelay = index * 0.06;
@@ -1514,7 +1614,10 @@
 					<article class="card" onclick="selectCard(${index})" style="animation: cardEntrance 0.35s ease ${staggerDelay}s both;">
 						<div class="card-top">
 							<div class="card-ref">${escapeHtml(item.reference)}</div>
-							<div class="match-score">${scorePercent}% 일치</div>
+							<div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end;">
+								${resultKind ? `<div class="result-type-badge">${escapeHtml(resultKind)}</div>` : ""}
+								<div class="match-score">${scorePercent}% 일치</div>
+							</div>
 						</div>
 						<h3 class="card-title">${escapeHtml(item.title || item.reference)}</h3>
 						<p class="card-summary">${escapeHtml(item.summary || item.text.substring(0, 80) + "...")}</p>
