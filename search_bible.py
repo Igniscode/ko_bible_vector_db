@@ -40,7 +40,7 @@ def has_passage_keywords(query: str) -> bool:
         return True
 
     # "~한 이야기", "~한 장면" 등은 passage 성격으로 본다.
-    return bool(re.search(r".+한\s*(이야기|내용|장면|부분|사건)", q))
+    return bool(re.search(r".+한\s*(이야기|내용|장면|부분|사건|설명|방법)", q))
 
 
 def safe_json_array(value):
